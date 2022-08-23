@@ -6,12 +6,13 @@ const User = require('./models/user')
 
 app.get("/", (req, res) => {
      res.send(`Learning CRUD API test to <i>url(<a href="http://localhost:${port}/api">http://localhost:${port}/api</a>)</i>`);
-}).listen(port, console.log(`Server berjalan di port ${port}`));
+})
 
 db.authenticate().then(() => console.log("Database berhasil terkoneksi"));
 
 app.use(express.urlencoded({ extended: true }))
 
+// CREATE
 app.post("/api", async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -28,7 +29,7 @@ app.post("/api", async (req, res) => {
      console.error(err.message);
   }
 });
-
+// SHOW ALL
 app.get("/api", async (req, res) => {
      try {
           const getAllUser = await User.findAll()
@@ -39,6 +40,7 @@ app.get("/api", async (req, res) => {
           console.error(err.message);
      }
 })
+// SHOW FROM ID
 app.get("/api/:id", async (req, res) => {
      try {
           const id = req.params.id
@@ -53,6 +55,7 @@ app.get("/api/:id", async (req, res) => {
           console.error(err.message);
      }
 })
+// DELETE DATA
 app.delete("/api/:id", async (req, res) => {
      try {
           const id = req.params.id
@@ -61,9 +64,31 @@ app.delete("/api/:id", async (req, res) => {
                where: {id: id}
           })
 
+          await deleteUser;
+
           res.json("Data berhasil di hapus");
      } catch (err) {
           res.status(500).send("server error")
           console.error(err.message);
      }
 })
+// UPDATE DATA
+app.put("/api/:id", async (req, res) => {
+     try {
+          const { username, email, password } = req.body;
+          const id = req.params.id
+
+          const updateUser = await User.update({
+               username, email, password
+          }, {where: {id: id}})
+
+          await updateUser
+
+          res.json("Data berhasil di update");
+     } catch (err) {
+          res.status(500).send("server error")
+          console.error(err.message);
+     }
+})
+
+app.listen(port, console.log(`Server berjalan di port ${port}`));
